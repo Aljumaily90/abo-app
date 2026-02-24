@@ -1,8 +1,8 @@
 {
   "name": "Abo-Verwalter",
   "short_name": "Abos",
-  "start_url": "/abo-app/",
-  "scope": "/abo-app/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#1e293b",
