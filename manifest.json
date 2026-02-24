@@ -1,9 +1,21 @@
 {
   "name": "Abo-Verwalter",
   "short_name": "Abos",
-  "start_url": "/",
+  "start_url": "/abo-app/",
+  "scope": "/abo-app/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#1e293b",
-  "icons": [{"src": "https://via.placeholder.com/192", "sizes": "192x192", "type": "image/png"}]
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/1e293b/ffffff?text=A",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/1e293b/ffffff?text=A",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
