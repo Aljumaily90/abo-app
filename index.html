@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abo-Verwalter</title>
+  <meta name="theme-color" content="#1e293b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Abos" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; min-height: 100vh; }
+    #app { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
+
+    .header { background: #1e293b; color: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 18px; font-weight: 700; }
+    .header span { font-size: 12px; color: #94a3b8; }
+    .back-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0; }
+
+    .stat-row { display: flex; gap: 12px; margin: 12px 16px; }
+    .stat { flex: 1; background: #fff; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); text-align: center; }
+    .stat-val { font-size: 22px; font-weight: 800; color: #1e293b; }
+    .stat-label { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    .card { background: #fff; border-radius: 12px; padding: 16px; margin: 12px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .section-title { font-size: 13px; font-weight: 700; color: #94a3b8; padding: 12px 16px 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .sub-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #fff; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .sub-name { font-weight: 600; font-size: 15px; color: #1e293b; }
+    .sub-meta { font-size: 12px; color: #64748b; }
+    .sub-price { margin-left: auto; font-weight: 700; color: #1e293b; font-size: 15px; white-space: nowrap; }
+
+    .badge { border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-green { background: #dcfce7; color: #166534; }
+
+    .urgent-card { background: #fef3c7; border-radius: 8px; padding: 10px 14px; margin: 4px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+
+    .search-bar { margin: 12px 16px 0; }
+    .search-bar input { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 14px; background: #f8fafc; outline: none; }
+
+    .filter-scroll { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; scrollbar-width: none; }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+    .filter-btn { padding: 5px 12px; border-radius: 20px; border: none; background: #f1f5f9; color: #64748b; font-weight: 600; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #2563eb; color: #fff; }
+
+    .fab { position: fixed; bottom: 80px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: #2563eb; color: #fff; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; }
+
+    nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #e2e8f0; display: flex; z-index: 100; }
+    .nav-btn { flex: 1; padding: 10px 0; border: none; background: none; color: #94a3b8; font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .nav-btn.active { color: #2563eb; font-weight: 700; }
+    .nav-icon { font-size: 20px; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; display: block; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #1e293b; background: #f8fafc; outline: none; }
+    .form-group textarea { height: 70px; resize: none; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+
+    .color-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+    .color-dot.selected { border-color: #1e293b; }
+
+    .btn-row { display: flex; gap: 10px; margin: 0 16px 20px; }
+    .btn { padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; flex: 1; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+
+    .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .detail-label { font-size: 13px; color: #64748b; }
+    .detail-val { font-size: 13px; font-weight: 600; color: #1e293b; text-align: right; }
+
+    .empty { text-align: center; padding: 60px 20px; color: #94a3b8; }
+    .empty div:first-child { font-size: 48px; }
+
+    .cat-card { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const CATEGORIES = ["Streaming","Software","Fitness","Musik","Gaming","News","Shopping","Sonstiges"];
+const INTERVALS = ["monatlich","vierteljährlich","halbjährlich","jährlich"];
+const CANCEL_METHODS = ["E-Mail","Webseite","Telefon","Brief","App"];
+const COLORS = ["#2563eb","#16a34a","#dc2626","#9333ea","#ea580c","#0891b2","#be185d","#65a30d"];
+const intervalMonths = {monatlich:1,vierteljährlich:3,halbjährlich:6,jährlich:12};
+
+let subs = [];
+try { subs = JSON.parse(localStorage.getItem("abos") || "[]"); } catch {}
+
+let view = "dashboard";
+let editId = null;
+let selectedId = null;
+let search = "";
+let filterCat = "Alle";
+let form = defaultForm();
+
+function defaultForm() {
+  return {name:"",category:"Streaming",price:"",interval:"monatlich",startDate:"",cancelDeadlineDays:"",cancelMethod:"Webseite",cancelInfo:"",notes:"",color:"#2563eb"};
+}
+
+function save() {
+  if (subs && subs.length >= 0) localStorage.setItem("abos", JSON.stringify(subs));
+}
+
+function monthlyPrice(s) {
+  return (parseFloat(s.price) || 0) / (intervalMonths[s.interval] || 1);
+}
+
+function getCancelWindow(s) {
+  if (!s.startDate || !s.cancelDeadlineDays) return null;
+  const start = new Date(s.startDate);
+  const today = new Date();
+  const months = intervalMonths[s.interval] || 1;
+  let next = new Date(start);
+  while (next <= today) next.setMonth(next.getMonth() + months);
+  const cancelDate = new Date(next);
+  cancelDate.setDate(cancelDate.getDate() - parseInt(s.cancelDeadlineDays));
+  const diff = Math.ceil((cancelDate - today) / 86400000);
+  return { diff, date: cancelDate.toLocaleDateString("de-DE") };
+}
+
+function badge(s) {
+  const r = getCancelWindow(s);
+  if (!r) return "";
+  const {diff, date} = r;
+  let cls, label;
+  if (diff < 0) { cls="badge-red"; label="Frist abgelaufen"; }
+  else if (diff <= 7) { cls="badge-yellow"; label=`${diff}d – ${date}`; }
+  else { cls="badge-green"; label=`${diff}d – ${date}`; }
+  return `<span class="badge ${cls}">🔔 ${label}</span>`;
+}
+
+function render() {
+  const app = document.getElementById("app");
+  if (view === "add") { app.innerHTML = renderAdd(); bindAdd(); return; }
+  if (view === "detail") { app.innerHTML = renderDetail(); bindDetail(); return; }
+  if (view === "dashboard") { app.innerHTML = renderDashboard(); bindDashboard(); return; }
+  app.innerHTML = renderList(); bindList();
+}
+
+function nav(active) {
+  return `<nav>
+    <button class="nav-btn ${active==='dashboard'?'active':''}" onclick="setView('dashboard')"><span class="nav-icon">🏠</span>Übersicht</button>
+    <button class="nav-btn ${active==='list'?'active':''}" onclick="setView('list')"><span class="nav-icon">📋</span>Abos</button>
+    <button class="nav-btn" onclick="setView('add')"><span class="nav-icon">➕</span>Hinzufügen</button>
+  </nav>`;
+}
+
+function fab() { return `<button class="fab" onclick="setView('add')">+</button>`; }
+
+function renderDashboard() {
+  const totalM = subs.reduce((a,s)=>a+monthlyPrice(s),0);
+  const totalY = totalM * 12;
+  const urgent = subs.filter(s=>{ const r=getCancelWindow(s); return r&&r.diff>=0&&r.diff<=14; });
+  let urgentHtml = urgent.length ? `<div class="section-title">⚠️ Bald kündbar</div>` : "";
+  urgent.forEach(s => {
+    urgentHtml += `<div class="urgent-card" onclick="openDetail(${s.id})">
+      <div><div style="font-weight:700;font-size:14px">${s.name}</div>
+      <div style="font-size:12px;color:#92400e">${s.cancelMethod}: ${s.cancelInfo||'–'}</div></div>
+      ${badge(s)}
+    </div>`;
+  });
+  let catHtml = "";
+  CATEGORIES.forEach(cat => {
+    const cs = subs.filter(s=>s.category===cat);
+    if (!cs.length) return;
+    const tot = cs.reduce((a,s)=>a+monthlyPrice(s),0);
+    catHtml += `<div class="card cat-card" onclick="setFilter('${cat}')">
+      <span style="font-weight:600;color:#1e293b">${cat}</span>
+      <span style="color:#64748b;font-size:13px">${cs.length} · ${tot.toFixed(2)} €/Mo</span>
+    </div>`;
+  });
+  const empty = subs.length===0 ? `<div class="empty"><div>📭</div><div style="font-weight:600;margin-top:12px">Noch keine Abos</div><div style="font-size:13px;margin-top:6px">Tippe auf + um dein erstes Abo hinzuzufügen</div></div>` : "";
+  return `<div class="header"><h1>📋 Abo-Verwalter</h1><span>${subs.length} Abos</span></div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-val">${totalM.toFixed(2)} €</div><div class="stat-label">pro Monat</div></div>
+      <div class="stat"><div class="stat-val">${totalY.toFixed(2)} €</div><div class="stat-label">pro Jahr</div></div>
+    </div>
+    ${urgentHtml}
+    <div class="section-title">Alle Kategorien</div>
+    ${catHtml}${empty}${fab()}${nav('dashboard')}`;
+}
+
+function renderList() {
+  const filtered = subs.filter(s=>(filterCat==="Alle"||s.category===filterCat)&&s.name.toLowerCase().includes(search.toLowerCase()));
+  let filterBtns = ["Alle",...CATEGORIES].map(c=>`<button class="filter-btn ${filterCat===c?'active':''}" onclick="setFilter('${c}')">${c}</button>`).join("");
+  let items = filtered.map(s=>`<div class="sub-item" onclick="openDetail(${s.id})">
+    <div class="dot" style="background:${s.color}"></div>
+    <div style="flex:1;min-width:0">
+      <div class="sub-name">${s.name}</div>
+      <div class="sub-meta">${s.category} · ${s.interval}</div>
+      <div style="margin-top:4px">${badge(s)}</div>
+    </div>
+    <div class="sub-price">${parseFloat(s.price).toFixed(2)} €</div>
+  </div>`).join("");
+  const empty = filtered.length===0 ? `<div class="empty"><div>🔍</div><div style="font-weight:600;margin-top:10px">Keine Abos gefunden</div></div>` : "";
+  return `<div class="header"><h1>📋 Meine Abos</h1><span>${filtered.length} von ${subs.length}</span></div>
+    <div class="search-bar"><input id="search-input" placeholder="🔍 Suchen..." value="${search}" oninput="setSearch(this.value)" /></div>
+    <div class="filter-scroll">${filterBtns}</div>
+    <div style="margin-top:8px">${items}${empty}</div>
+    ${fab()}${nav('list')}`;
+}
+
+function renderAdd() {
+  const colorDots = COLORS.map(c=>`<div class="color-dot ${form.color===c?'selected':''}" style="background:${c}" onclick="setColor('${c}')"></div>`).join("");
+  const catOpts = CATEGORIES.map(c=>`<option ${form.category===c?'selected':''}>${c}</option>`).join("");
+  const intOpts = INTERVALS.map(i=>`<option ${form.interval===i?'selected':''}>${i}</option>`).join("");
+  const cmOpts = CANCEL_METHODS.map(m=>`<option ${form.cancelMethod===m?'selected':''}>${m}</option>`).join("");
+  return `<div class="header"><button class="back-btn" onclick="cancelAdd()">←</button><h1>${editId?'Abo bearbeiten':'Abo hinzufügen'}</h1><div style="width:32px"></div></div>
+  <div style="padding:16px 16px 0">
+    <div class="form-group"><label>Name *</label><input id="f-name" value="${form.name}" placeholder="z.B. Netflix" /></div>
+    <div class="form-group"><label>Farbe</label><div class="color-row">${colorDots}</div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Preis (€) *</label><input id="f-price" type="number" value="${form.price}" placeholder="9.99" /></div>
+      <div class="form-group"><label>Turnus</label><select id="f-interval">${intOpts}</select></div>
+    </div>
+    <div class="form-group"><label>Kategorie</label><select id="f-category">${catOpts}</select></div>
+    <div class="form-group"><label>Startdatum</label><input id="f-start" type="date" value="${form.startDate}" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Kündigungsfrist (Tage)</label><input id="f-deadline" type="number" value="${form.cancelDeadlineDays}" placeholder="30" /></div>
+      <div class="form-group"><label>Kündigungsweg</label><select id="f-method">${cmOpts}</select></div>
+    </div>
+    <div class="form-group"><label>Kündigungsinfo</label><input id="f-info" value="${form.cancelInfo}" placeholder="z.B. kündigen@anbieter.de" /></div>
+    <div class="form-group"><label>Notizen</label><textarea id="f-notes">${form.notes}</textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="cancelAdd()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveForm()">Speichern</button>
+    </div>
+  </div>`;
+}
+
+function renderDetail() {
+  const s = subs.find(x=>x.id===selectedId);
+  if (!s) { view="list"; return renderList(); }
+  const monthly = monthlyPrice(s);
+  const r = getCancelWindow(s);
+  const rows = [
+    ["Preis", `${parseFloat(s.price).toFixed(2)} € (${s.interval})`],
+    ["Monatlich", `≈ ${monthly.toFixed(2)} €`],
+    ["Jährlich", `≈ ${(monthly*12).toFixed(2)} €`],
+    s.startDate && ["Startdatum", new Date(s.startDate).toLocaleDateString("de-DE")],
+    s.cancelDeadlineDays && ["Kündigungsfrist", `${s.cancelDeadlineDays} Tage`],
+    ["Kündigungsweg", s.cancelMethod],
+    s.cancelInfo && ["Kündigungsinfo", s.cancelInfo],
+    r && ["Nächste Kündigung", r.date],
+  ].filter(Boolean).map(([l,v])=>`<div class="detail-row"><span class="detail-label">${l}</span><span class="detail-val">${v}</span></div>`).join("");
+  const notesHtml = s.notes ? `<div style="margin-top:12px;font-size:13px;color:#64748b"><b>Notizen:</b> ${s.notes}</div>` : "";
+  return `<div class="header" style="background:${s.color}"><button class="back-btn" onclick="setView('list')">←</button><h1>${s.name}</h1><div style="width:32px"></div></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="background:#f1f5f9;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#475569">${s.category}</span>
+      ${badge(s)}
+    </div>
+    ${rows}${notesHtml}
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="startEdit(${s.id})">✏️ Bearbeiten</button>
+    <button class="btn btn-danger" onclick="deleteSub(${s.id})">🗑️ Löschen</button>
+  </div>`;
+}
+
+// Actions
+window.setView = v => { view=v; render(); };
+window.setFilter = c => { filterCat=c; view="list"; render(); };
+window.setSearch = v => { search=v; render(); };
+window.setColor = c => { form.color=c; render(); };
+window.openDetail = id => { selectedId=id; view="detail"; render(); };
+window.cancelAdd = () => { form=defaultForm(); editId=null; view="list"; render(); };
+window.startEdit = id => {
+  const s = subs.find(x=>x.id===id);
+  form = {...s}; editId=id; view="add"; render();
+};
+window.deleteSub = id => {
+  subs = subs.filter(x=>x.id!==id); save(); view="list"; render();
+};
+window.saveForm = () => {
+  form.name = document.getElementById("f-name").value;
+  form.price = document.getElementById("f-price").value;
+  form.interval = document.getElementById("f-interval").value;
+  form.category = document.getElementById("f-category").value;
+  form.startDate = document.getElementById("f-start").value;
+  form.cancelDeadlineDays = document.getElementById("f-deadline").value;
+  form.cancelMethod = document.getElementById("f-method").value;
+  form.cancelInfo = document.getElementById("f-info").value;
+  form.notes = document.getElementById("f-notes").value;
+  if (!form.name || !form.price) return;
+  if (editId !== null) {
+    subs = subs.map(x=>x.id===editId?{...form,id:editId}:x);
+  } else {
+    subs.push({...form, id:Date.now()});
+  }
+  save(); form=defaultForm(); editId=null; view="list"; render();
+};
+window.bindAdd = ()=>{};
+window.bindDetail = ()=>{};
+window.bindDashboard = ()=>{};
+window.bindList = ()=>{};
+
+render();
+</script>
+</body>
+</html>
